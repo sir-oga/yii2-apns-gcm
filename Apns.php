@@ -85,7 +85,7 @@ class Apns extends AbstractApnsGcm
                 $this->options['sendRetryTimes'] = $this->retryTimes;
             }
             foreach ($this->options as $key => $value) {
-                $method = 'set' . ucfirst($key);
+                $method = 'set' . static::camelize($key);
                 $value = is_array($value) ? $value : [$value];
 
                 call_user_func_array([$this->_client, $method], $value);
@@ -134,7 +134,7 @@ class Apns extends AbstractApnsGcm
         $message->setText($text);
         foreach ($args as $method => $value) {
             if (strpos($method, 'set') === false) {
-                $method = 'set' . ucfirst($method);
+                $method = 'set' . static::camelize($method);
             }
             $value = is_array($value) ? $value : [$value];
             call_user_func_array([$message, $method], $value);
@@ -178,7 +178,7 @@ class Apns extends AbstractApnsGcm
         $message->setText($text);
         foreach ($args as $method => $value) {
             if (strpos($message, 'set') === false) {
-                $method = 'set' . ucfirst($method);
+                $method = 'set' . static::camelize($method);
             }
             $value = is_array($value) ? $value : [$value];
             call_user_func_array([$message, $method], $value);
@@ -207,5 +207,20 @@ class Apns extends AbstractApnsGcm
         }
 
         return parent::__call($method, $params);
+    }
+
+    /**
+     * Returns given word as CamelCased
+     * Converts a word like "send_email" to "SendEmail". It
+     * will remove non alphanumeric character from the word, so
+     * "who's online" will be converted to "WhoSOnline"
+     * @todo: install yii2 as dependency and use from it
+     * @see variablize()
+     * @param string $word the word to CamelCase
+     * @return string
+     */
+    private static function camelize($word)
+    {
+        return str_replace(' ', '', ucwords(preg_replace('/[^A-Za-z0-9]+/', ' ', $word)));
     }
 }
